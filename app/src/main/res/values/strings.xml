@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">COVID_19_For_Android</string>
+    <string name="top_app_bar_name1">CORONA</string>
+    <string name="top_app_bar_name2">LIVE</string>
+</resources>
