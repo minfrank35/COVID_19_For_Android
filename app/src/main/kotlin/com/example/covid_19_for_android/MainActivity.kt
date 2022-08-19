@@ -19,18 +19,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
+import com.example.covid_19_for_android.ui.main.MainView
 import com.example.covid_19_for_android.ui.main.TopAppBarMain
 import com.example.covid_19_for_android.ui.main.TopAppBarTitle
 import com.example.covid_19_for_android.ui.theme.COVID_19_For_AndroidTheme
+import com.example.covid_19_for_android.viewmodel.CovidViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme() {
-                TopAppBarMain()
+                MainView()
             }
         }
     }

@@ -1,19 +1,35 @@
 package com.example.covid_19_for_android.data.impl
 
-import android.util.Log
 import com.example.covid_19_for_android.const.ApiConst
 import com.example.covid_19_for_android.data.response.ResCovidNewAdmissionDO
 import com.example.covid_19_for_android.data.CovidRepository
-import com.example.covid_19_for_android.retrofit.RetrofitApiCallback
-import com.example.covid_19_for_android.retrofit.RetrofitApiHelper
-import com.example.covid_19_for_android.retrofit.RetrofitCovidNewAdmission
+import com.example.covid_19_for_android.retrofit.RetrofitCovidInterface
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class CovidRepositoryImpl(var retrofitApiCallback: Callback<ResCovidNewAdmissionDO>) : CovidRepository  {
-    override fun getNewAdmission(): ResCovidNewAdmissionDO {
-//        (RetrofitApiHelper(RetrofitCovidNewAdmission::class).service as RetrofitCovidNewAdmission).getNewAdmission(
+    private val covidRetrofit = Retrofit.Builder()
+        .baseUrl(ApiConst.BASE_URL)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    private val covidRetrofitService  = covidRetrofit.create(RetrofitCovidInterface::class.java)
+
+    override suspend fun getNewAdmission(): Response<ResCovidNewAdmissionDO>
+        = covidRetrofitService.getNewAdmission(ApiConst.SERVICE_KEY_NEW_ADMISSION)
+}
+
+
+
+
+
+
+
+
+//    (RetrofitApiHelper(RetrofitCovidNewAdmission::class).service as RetrofitCovidNewAdmission).getNewAdmission(
 //            serviceKey = ApiConst.SERVICE_KEY
 //        ).enqueue(
 //            object : Callback<ResCovidNewAdmissionDO> {
@@ -34,6 +50,3 @@ class CovidRepositoryImpl(var retrofitApiCallback: Callback<ResCovidNewAdmission
 //                }
 //            }
 //        )
-        return ResCovidNewAdmissionDO("","","")
-    }
-}
