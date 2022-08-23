@@ -1,26 +1,77 @@
 package com.example.covid_19_for_android.data.impl
 
+import android.util.Log
 import com.example.covid_19_for_android.const.ApiConst
 import com.example.covid_19_for_android.data.response.ResCovidNewAdmissionDO
 import com.example.covid_19_for_android.data.CovidRepository
+import com.example.covid_19_for_android.data.response.ResCovidNewAdmissionDO2
 import com.example.covid_19_for_android.retrofit.RetrofitCovidInterface
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonObject
+import okhttp3.Headers
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
-class CovidRepositoryImpl(var retrofitApiCallback: Callback<ResCovidNewAdmissionDO>) : CovidRepository  {
+class CovidRepositoryImpl() : CovidRepository  {
+
+    private val okHttpClient = OkHttpClient.Builder().addInterceptor(HttpLoggingInterceptor { message ->
+        Log.e(
+            "minfrank2",
+            message
+        )
+    }.apply {
+        level = HttpLoggingInterceptor.Level.NONE
+    }).addInterceptor {
+        // Request
+        val request = it.request()
+            .newBuilder()
+            .headers(Headers.headersOf(
+                "Content-type", "application/json"
+            ))
+            .build()
+        // Response
+        val response = it.proceed(request)
+        response
+    }.build()
+
+    private var gson = GsonBuilder().setLenient().create()
+
     private val covidRetrofit = Retrofit.Builder()
         .baseUrl(ApiConst.BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
+        .client(okHttpClient)
+        .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
 
     private val covidRetrofitService  = covidRetrofit.create(RetrofitCovidInterface::class.java)
 
-    override suspend fun getNewAdmission(): Response<ResCovidNewAdmissionDO>
-        = covidRetrofitService.getNewAdmission(ApiConst.SERVICE_KEY_NEW_ADMISSION)
+    override suspend fun getNewAdmission(): ResCovidNewAdmissionDO {
+        val call = covidRetrofitService.getNewAdmission(ApiConst.SERVICE_KEY_NEW_ADMISSION)
+        val response : Response<ResCovidNewAdmissionDO> = call.execute()
+
+        if(response.isSuccessful) return response.body() as ResCovidNewAdmissionDO
+        return ResCovidNewAdmissionDO(ResCovidNewAdmissionDO2())
+    }
+
 }
+
+
+//.enqueue(object : Callback<ResCovidNewAdmissionDO> {
+//    override fun onResponse(call: Call<ResCovidNewAdmissionDO>,response: Response<ResCovidNewAdmissionDO>) {
+//        Log.e("minfrank", response.isSuccessful.toString())
+//
+//    }
+//
+//    override fun onFailure(call: Call<ResCovidNewAdmissionDO>, t: Throwable) {
+//        Log.e("minfrank", "실패")
+//    }
+//})
 
 
 

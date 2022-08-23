@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
+import com.example.covid_19_for_android.data.impl.CovidRepositoryImpl
 import com.example.covid_19_for_android.ui.main.MainView
 import com.example.covid_19_for_android.ui.main.TopAppBarMain
 import com.example.covid_19_for_android.ui.main.TopAppBarTitle
@@ -32,8 +33,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
-            MaterialTheme() {
+            MaterialTheme {
                 MainView()
             }
         }

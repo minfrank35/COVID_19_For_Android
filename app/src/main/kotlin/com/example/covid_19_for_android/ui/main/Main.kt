@@ -29,12 +29,17 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
 import com.example.covid_19_for_android.MainActivity
 import com.example.covid_19_for_android.R
+import com.example.covid_19_for_android.data.impl.CovidRepositoryImpl
 import com.example.covid_19_for_android.data.serviceDO.ServiceMainContentDetailDO
 import com.example.covid_19_for_android.ui.theme.*
+import com.example.covid_19_for_android.viewmodel.CovidViewModel
 import kotlinx.coroutines.launch
 
+
+val covidViewModel : CovidViewModel = CovidViewModel(CovidRepositoryImpl())
 
 @Composable
 fun TopAppBarTitle() {
@@ -114,6 +119,7 @@ fun TopAppBarImage1() {
 fun MainView() {
     Column {
         TopAppBarMain()
+
         ContentMain()
     }
 }
@@ -157,7 +163,7 @@ fun ContentTopMainDetail(detailContent : ServiceMainContentDetailDO?) {
         )
 
         Text(
-            text = "content",
+            text = covidViewModel.todaypatient.value,
             color = color_eb5374,
             fontSize = 16.sp
         )

@@ -6,5 +6,5 @@ import retrofit2.Response
 
 
 interface CovidRepository {
-    suspend fun getNewAdmission() : Response<ResCovidNewAdmissionDO>
+    suspend fun getNewAdmission() : ResCovidNewAdmissionDO
 }
