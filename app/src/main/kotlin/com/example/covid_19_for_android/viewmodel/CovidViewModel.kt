@@ -1,62 +1,58 @@
 package com.example.covid_19_for_android.viewmodel
 
-import android.text.TextUtils
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.example.covid_19_for_android.data.CovidRepository
-import com.example.covid_19_for_android.data.impl.CovidRepositoryImpl
 import com.example.covid_19_for_android.data.response.ResCovidNewAdmissionDO
+import com.example.covid_19_for_android.repository.impl.CovidRepositoryImpl
 import com.example.covid_19_for_android.data.response.ResCovidNewAdmissionDO3
+import com.example.covid_19_for_android.data.serviceDO.ServiceMainContentDetailDO
+import com.google.accompanist.swiperefresh.SwipeRefreshState
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Response
+import kotlinx.coroutines.*
+import okhttp3.internal.wait
 
+
+/**
+ * 코로나 관련 ViewModel
+ */
 class CovidViewModel(private val repository: CovidRepositoryImpl)  {
-//    private val _covidResponse = MutableLiveData<ResCovidNewAdmissionDO>()
-//    val covidResponse : LiveData<ResCovidNewAdmissionDO> = _covidResponse
-//
-//    fun covidResponse(){
-//        CoroutineScope(Dispatchers.IO).launch {
-//            val response : Response<ResCovidNewAdmissionDO> = repository.getNewAdmission()
-//            if(response.isSuccessful) {
-//                Log.e("minfrank", response.body().toString())
-////                _covidResponse.postValue(response.body())
-//            } else {
-//
-//            }
-//        }
-//    }
-    var todaypatient : MutableState<String> = mutableStateOf("")
-    var accumulatedpatient : MutableState<String> = mutableStateOf("")
 
-    init {
+    /**
+     * SwipeRefresh의 작업 상태
+     * 네트워크나 작업 중인상태면 : true
+     * 작업이 끝나거나 아무것도 안하는 상태 : false
+     */
+    var refreshState = mutableStateOf(false)
+
+    /**
+     * 일주일간의 신규 입원자 수
+     */
+    var patitentWeek : MutableState<ResCovidNewAdmissionDO3> = mutableStateOf(ResCovidNewAdmissionDO3())
+
+
+    /**
+     * 일주일간의 신규 입원자수 api 요청(patientweek 갱신)
+     */
+    fun refreshPatientInHospital() {
+
         CoroutineScope(Dispatchers.IO).launch {
-            todaypatient.value = getTodayPatient()
+
+            try {
+                refreshState.value = true
+                val res = repository.getNewAdmission()
+                val jsonObject: JsonObject = res.response.result[0] as JsonObject
+                val resObject = Gson().fromJson(jsonObject, ResCovidNewAdmissionDO3::class.java)
+
+                patitentWeek.value = resObject
+                refreshState.value = false
+                } catch (e: Exception) {
+                    e.printStackTrace()
+            }
         }
     }
-
-    suspend fun getTodayPatient() : String {
-        val res = repository.getNewAdmission()
-        val jsonObject: JsonObject = res.response.result[0] as JsonObject
-        val gson = Gson().fromJson(jsonObject, ResCovidNewAdmissionDO3::class.java)
-        return gson.cnt7
-    }
-
-    fun refreshTodayPatient() {
-        CoroutineScope(Dispatchers.IO).launch {
-            val res = repository.getNewAdmission()
-            val jsonObject: JsonObject = res.response.result[0] as JsonObject
-            val gson = Gson().fromJson(jsonObject, ResCovidNewAdmissionDO3::class.java)
-            todaypatient.value = gson.cnt7
-        }
-    }
-
 }

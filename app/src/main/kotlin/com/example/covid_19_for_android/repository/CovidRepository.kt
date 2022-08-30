@@ -1,4 +1,4 @@
-package com.example.covid_19_for_android.data
+package com.example.covid_19_for_android.repository
 
 import com.example.covid_19_for_android.data.response.ResCovidNewAdmissionDO
 import retrofit2.Call

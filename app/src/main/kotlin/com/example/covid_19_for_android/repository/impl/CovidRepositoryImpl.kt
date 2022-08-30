@@ -1,25 +1,21 @@
-package com.example.covid_19_for_android.data.impl
+package com.example.covid_19_for_android.repository.impl
 
 import android.util.Log
 import com.example.covid_19_for_android.const.ApiConst
 import com.example.covid_19_for_android.data.response.ResCovidNewAdmissionDO
-import com.example.covid_19_for_android.data.CovidRepository
+import com.example.covid_19_for_android.repository.CovidRepository
 import com.example.covid_19_for_android.data.response.ResCovidNewAdmissionDO2
 import com.example.covid_19_for_android.retrofit.RetrofitCovidInterface
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonObject
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import org.json.JSONObject
-import retrofit2.Call
-import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
+import java.lang.IllegalStateException
 
-class CovidRepositoryImpl() : CovidRepository  {
+class CovidRepositoryImpl() : CovidRepository {
 
     private val okHttpClient = OkHttpClient.Builder().addInterceptor(HttpLoggingInterceptor { message ->
         Log.e(
@@ -52,11 +48,11 @@ class CovidRepositoryImpl() : CovidRepository  {
     private val covidRetrofitService  = covidRetrofit.create(RetrofitCovidInterface::class.java)
 
     override suspend fun getNewAdmission(): ResCovidNewAdmissionDO {
-        val call = covidRetrofitService.getNewAdmission(ApiConst.SERVICE_KEY_NEW_ADMISSION)
-        val response : Response<ResCovidNewAdmissionDO> = call.execute()
+            val call = covidRetrofitService.getNewAdmission(ApiConst.SERVICE_KEY_NEW_ADMISSION)
+            val response : Response<ResCovidNewAdmissionDO> = call.execute()
 
-        if(response.isSuccessful) return response.body() as ResCovidNewAdmissionDO
-        return ResCovidNewAdmissionDO(ResCovidNewAdmissionDO2())
+            if(response.isSuccessful) return response.body() as ResCovidNewAdmissionDO
+            return ResCovidNewAdmissionDO(ResCovidNewAdmissionDO2())
     }
 
 }

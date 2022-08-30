@@ -1,45 +1,34 @@
 package com.example.covid_19_for_android.ui.main
 
-import android.content.Context
-import android.provider.CalendarContract
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
-import com.example.covid_19_for_android.MainActivity
 import com.example.covid_19_for_android.R
-import com.example.covid_19_for_android.data.impl.CovidRepositoryImpl
-import com.example.covid_19_for_android.data.serviceDO.ServiceMainContentDetailDO
+import com.example.covid_19_for_android.repository.impl.CovidRepositoryImpl
 import com.example.covid_19_for_android.ui.theme.*
 import com.example.covid_19_for_android.viewmodel.CovidViewModel
-import kotlinx.coroutines.launch
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshState
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 
-val covidViewModel : CovidViewModel = CovidViewModel(CovidRepositoryImpl())
+private val covidViewModel : CovidViewModel = CovidViewModel(CovidRepositoryImpl())
 
 @Composable
 fun TopAppBarTitle() {
@@ -117,53 +106,91 @@ fun TopAppBarImage1() {
 @Preview("MainView")
 @Composable
 fun MainView() {
-    Column {
-        TopAppBarMain()
+    SwipeRefresh(state = rememberSwipeRefreshState(covidViewModel.refreshState.value), onRefresh = { covidViewModel.refreshPatientInHospital() }) {
+        Column(modifier = Modifier.verticalScroll(rememberScrollState())){
+            TopAppBarMain()
 
-        ContentMain()
+            ContentMain()
+        }
     }
 }
 
 @Composable
 fun ContentMain() {
-    Spacer(modifier = Modifier.height(15.dp))
-
     ContentTopMain()
 
-    Spacer(modifier = Modifier.height(15.dp))
-
     ContentTop2Main()
+
+    ContentTop3Main()
+
 }
 
+
+@Preview("ContentCenterMain", showBackground = true)
 @Composable
-fun ContentTopMain() {
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .background(color_1a1f2c),
-        horizontalArrangement = Arrangement.SpaceEvenly
+fun ContentTop3Main() {
+    Column(
+        modifier = Modifier
+            .padding(top = 0.dp, start = 15.dp, end = 15.dp, bottom = 15.dp)
+            .clip(shape = RoundedCornerShape(10.dp))
     ) {
-//        var list :MutableList<ServiceMainContentDetailDO> = mutableListOf()
-//        list.add(ServiceMainContentDetailDO("확진자"))
-        for(i in 0..3) {
-            ContentTopMainDetail(null)
+        ContentCenterMainTitle()
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color_1a1f2c),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            ContentTopMainDetail(title = "오늘", content = covidViewModel.patitentWeek.value.cnt7)
+            ContentTopMainDetail(title = "1일전", content = covidViewModel.patitentWeek.value.cnt6)
+            ContentTopMainDetail(title = "2일전", content = covidViewModel.patitentWeek.value.cnt5)
+            ContentTopMainDetail(title = "3일전", content = covidViewModel.patitentWeek.value.cnt4)
         }
     }
 }
 
 
 @Composable
-fun ContentTopMainDetail(detailContent : ServiceMainContentDetailDO?) {
+fun ContentCenterMainTitle() {
+    Text(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color_1a1f2c)
+            .padding(10.dp),
+        textAlign = TextAlign.Center,
+        text = "신규 입원자 수",
+        color = color_cfcfcf,
+        fontSize = 20.sp,
+        fontFamily = fontDalseo
+    )
+}
+
+@Composable
+fun ContentTopMain() {
+    Row(modifier = Modifier
+        .padding(top = 15.dp, start = 15.dp, end = 15.dp, bottom = 15.dp)
+        .clip(shape = RoundedCornerShape(10.dp))
+        .fillMaxWidth()
+        .background(color_1a1f2c),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+
+    }
+}
+
+@Composable
+fun ContentTopMainDetail(title : String, content : String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(13.dp)
     ) {
         Text(
-            text = "확진자",
+            text = title,
             color = color_cfcfcf,
             fontSize = 12.sp
         )
-
         Text(
-            text = covidViewModel.todaypatient.value,
+            text = content,
             color = color_eb5374,
             fontSize = 16.sp
         )
@@ -172,11 +199,14 @@ fun ContentTopMainDetail(detailContent : ServiceMainContentDetailDO?) {
 
 @Composable
 fun ContentTop2Main() {
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .heightIn()
-        .background(color_1a1f2c)
-        .padding(15.dp),
+    Row(
+        modifier = Modifier
+            .padding(top = 0.dp, start = 15.dp, end = 15.dp, bottom = 15.dp)
+            .clip(shape = RoundedCornerShape(10.dp))
+            .fillMaxWidth()
+            .heightIn()
+            .background(color_1a1f2c)
+            .padding(15.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         TodayInfected()
@@ -184,6 +214,8 @@ fun ContentTop2Main() {
         CompareWithToday()
     }
 }
+
+
 @Composable
 fun TodayInfected() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
