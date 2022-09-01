@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.covid_19_for_android.R
+import com.example.covid_19_for_android.data.response.ResCovidNewAdmissionDO3
 import com.example.covid_19_for_android.repository.impl.CovidRepositoryImpl
 import com.example.covid_19_for_android.ui.theme.*
 import com.example.covid_19_for_android.viewmodel.CovidViewModel
@@ -28,7 +30,7 @@ import com.google.accompanist.swiperefresh.SwipeRefreshState
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 
-private val covidViewModel : CovidViewModel = CovidViewModel(CovidRepositoryImpl())
+private val covidViewModel : CovidViewModel by lazy { CovidViewModel(CovidRepositoryImpl()) }
 
 @Composable
 fun TopAppBarTitle() {
@@ -106,7 +108,9 @@ fun TopAppBarImage1() {
 @Preview("MainView")
 @Composable
 fun MainView() {
-    SwipeRefresh(state = rememberSwipeRefreshState(covidViewModel.refreshState.value), onRefresh = { covidViewModel.refreshPatientInHospital() }) {
+    val swipeRefreshState by covidViewModel.refreshState.observeAsState(false)
+
+    SwipeRefresh(state = rememberSwipeRefreshState(swipeRefreshState), onRefresh = { covidViewModel.refreshMain() }) {
         Column(modifier = Modifier.verticalScroll(rememberScrollState())){
             TopAppBarMain()
 
@@ -129,6 +133,8 @@ fun ContentMain() {
 @Preview("ContentCenterMain", showBackground = true)
 @Composable
 fun ContentTop3Main() {
+    val patientWeek by covidViewModel.patitentWeek.observeAsState(ResCovidNewAdmissionDO3())
+
     Column(
         modifier = Modifier
             .padding(top = 0.dp, start = 15.dp, end = 15.dp, bottom = 15.dp)
@@ -142,10 +148,10 @@ fun ContentTop3Main() {
                 .background(color_1a1f2c),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            ContentTopMainDetail(title = "오늘", content = covidViewModel.patitentWeek.value.cnt7)
-            ContentTopMainDetail(title = "1일전", content = covidViewModel.patitentWeek.value.cnt6)
-            ContentTopMainDetail(title = "2일전", content = covidViewModel.patitentWeek.value.cnt5)
-            ContentTopMainDetail(title = "3일전", content = covidViewModel.patitentWeek.value.cnt4)
+            ContentTopMainDetail(title = "오늘", content = patientWeek.cnt7)
+            ContentTopMainDetail(title = "1일전", content = patientWeek.cnt6)
+            ContentTopMainDetail(title = "2일전", content = patientWeek.cnt5)
+            ContentTopMainDetail(title = "3일전", content = patientWeek.cnt4)
         }
     }
 }
@@ -218,6 +224,8 @@ fun ContentTop2Main() {
 
 @Composable
 fun TodayInfected() {
+    val todayInfectedCount by covidViewModel.todayInfectedCount.observeAsState("0")
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = "오늘 확진자",
@@ -226,7 +234,7 @@ fun TodayInfected() {
         )
 
         Text(
-            text = "30,260",
+            text = todayInfectedCount,
             fontSize = 30.sp,
             textAlign = TextAlign.Center,
             color = color_cfcfcf,
